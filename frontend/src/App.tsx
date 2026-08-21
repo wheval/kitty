@@ -1,49 +1,15 @@
-import { useEffect, useState } from 'react'
+import { Route, Routes } from 'react-router-dom'
 import './App.css'
 import { useWallet } from './hooks/useWallet'
-import { useCreateSplit } from './hooks/useCreateSplit'
-import { usePayShare } from './hooks/usePayShare'
-import { useSplit } from './hooks/useSplit'
-import { useSplitEvents } from './hooks/useSplitEvents'
 import { useReputation } from './hooks/useReputation'
 import { WalletConnect } from './components/WalletConnect'
-import { CreateSplit } from './components/CreateSplit'
-import { SplitStatus } from './components/SplitStatus'
-import { TransactionStatus } from './components/TransactionStatus'
 import { ReputationBadge } from './components/ReputationBadge'
+import { HomePage } from './pages/HomePage'
+import { SplitPage } from './pages/SplitPage'
 
 function App() {
   const wallet = useWallet()
-  const createSplit = useCreateSplit(wallet.address)
-  const payShare = usePayShare(wallet.address)
   const reputation = useReputation(wallet.address)
-
-  const [splitId, setSplitId] = useState<bigint | null>(null)
-  const [lookupInput, setLookupInput] = useState('')
-
-  const { split, loading: splitLoading, refresh } = useSplit(splitId)
-  const events = useSplitEvents(splitId)
-
-  useEffect(() => {
-    if (createSplit.status === 'success' && createSplit.result !== null) {
-      setSplitId(createSplit.result)
-    }
-  }, [createSplit.status, createSplit.result])
-
-  useEffect(() => {
-    if (payShare.status === 'success') {
-      refresh()
-      reputation.refresh()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [payShare.status, refresh])
-
-  const handleLookup = () => {
-    const trimmed = lookupInput.trim()
-    if (/^\d+$/.test(trimmed)) {
-      setSplitId(BigInt(trimmed))
-    }
-  }
 
   return (
     <div className="app">
@@ -66,53 +32,13 @@ function App() {
         </div>
       )}
 
-      <CreateSplit
-        disabled={!wallet.address}
-        pending={createSplit.status === 'pending'}
-        onCreate={(recipients, amounts) => createSplit.createSplit(recipients, amounts)}
-      />
-      <TransactionStatus
-        status={createSplit.status}
-        hash={createSplit.hash}
-        error={createSplit.error}
-        successLabel={`Split #${createSplit.result?.toString() ?? ''} created`}
-      />
-
-      <div className="card">
-        <label htmlFor="lookup">View an existing split by ID</label>
-        <div className="recipient-row">
-          <input
-            id="lookup"
-            placeholder="0"
-            value={lookupInput}
-            onChange={(e) => setLookupInput(e.target.value)}
-          />
-          <button className="btn-secondary" onClick={handleLookup} type="button">
-            View
-          </button>
-        </div>
-      </div>
-
-      {splitId !== null && (
-        <>
-          <SplitStatus
-            splitId={splitId}
-            split={split}
-            loading={splitLoading}
-            myAddress={wallet.address}
-            payPending={payShare.status === 'pending'}
-            onPay={() => payShare.payShare(splitId)}
-            events={events}
-            onRefresh={refresh}
-          />
-          <TransactionStatus
-            status={payShare.status}
-            hash={payShare.hash}
-            error={payShare.error}
-            successLabel="Your share is paid — reputation updated"
-          />
-        </>
-      )}
+      <Routes>
+        <Route path="/" element={<HomePage address={wallet.address} />} />
+        <Route
+          path="/split/:id"
+          element={<SplitPage address={wallet.address} onPaid={reputation.refresh} />}
+        />
+      </Routes>
     </div>
   )
 }
