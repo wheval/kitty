@@ -14,6 +14,17 @@ Level 2 was one contract (`KittySplit`) and one wallet flow. Level 3 adds:
 - **Mobile-responsive layout**: a dedicated breakpoint, touch-sized tap targets, and a single-column layout under 480px.
 - **Loading states**: skeleton loaders while split/reputation data is being fetched, not just error states.
 
+## Production-hardening pass
+
+The first version of this app worked but read as a demo, not a product — no routing, hardcoded config, no crash isolation, an unsplit bundle, and default Vite branding. Fixed:
+
+- **Real routing (`react-router-dom`)**: `/` and `/split/:id` are actual, shareable, deep-linkable URLs — not "paste an ID into a text box." A `vercel.json` rewrite rule makes direct visits to `/split/:id` work in production too (verified: this genuinely 404'd before the rewrite was added).
+- **Environment-based config**: contract IDs and network settings come from `VITE_*` env vars (see `.env.example`), with the current testnet deployment as the fallback default — so the same code can point at a different deployment or network without editing source.
+- **Error boundary**: a render crash shows a recoverable error screen instead of a blank page.
+- **Code splitting**: the wallet kit (which pulls in SDKs for every supported wallet, including hardware wallets like Trezor/Ledger) is now lazy-loaded on first "Connect Wallet" click via dynamic `import()`, instead of shipping in the initial bundle. Each wallet module is its own chunk, loaded only if needed.
+- **Recent splits**: a lightweight localStorage-backed "recent splits" list on the home page, so returning users don't lose track of splits they've viewed or created.
+- **Real branding**: proper page title, meta description, Open Graph tags, and a favicon — not the default Vite template.
+
 ## Architecture
 
 ```
@@ -50,7 +61,7 @@ Source: [`../contract/contracts/kitty-split`](../contract/contracts/kitty-split)
 - **Frontend:** React + TypeScript (Vite), [`@stellar/stellar-sdk`](https://github.com/stellar/js-stellar-sdk), [`@creit.tech/stellar-wallets-kit`](https://github.com/Creit-Tech/Stellar-Wallets-Kit) for multi-wallet support
 - **Testing:** `cargo test` (contract unit tests, 7 total), Vitest + React Testing Library (frontend, 15 total)
 - **CI/CD:** GitHub Actions (`.github/workflows/ci.yml`)
-- **Hosting:** Vercel
+- **Hosting:** Vercel, with an SPA rewrite (`vercel.json`) so client-side routes work on direct navigation
 
 ## Setup instructions
 
@@ -64,6 +75,7 @@ Source: [`../contract/contracts/kitty-split`](../contract/contracts/kitty-split)
 
 ```bash
 npm install
+cp .env.example .env.local   # optional — defaults already point at the deployed testnet contracts
 npm run dev
 ```
 
@@ -98,10 +110,11 @@ Every push to `main` runs two parallel jobs (see `.github/workflows/ci.yml`):
 ## Usage
 
 1. Connect your wallet.
-2. **Create a split** — add recipients and their share amounts; this calls `create_split`.
-3. Each recipient connects their own wallet, opens the split, and **pays their share** — this calls `pay_share`, which pays the creator directly and reports the payment to `KittyReputation` in the same transaction.
+2. **Create a split** on the home page (`/`) — add recipients and their share amounts; this calls `create_split` and redirects you to `/split/:id`.
+3. **That URL is shareable** — send it to the people who owe money, or they can look it up from the home page. Each recipient connects their own wallet on that page and **pays their share** — this calls `pay_share`, which pays the creator directly and reports the payment to `KittyReputation` in the same transaction.
 4. Connected wallets see their on-chain **reputation badge** — total shares paid on time and total XLM settled — read live from `KittyReputation.get_score`.
 5. Payments from any browser tab appear in **Live activity** automatically via event polling, and paid/pending badges update without a manual refresh.
+6. The home page remembers **recent splits** you've viewed or created (stored locally in your browser).
 
 ## Screenshots
 
