@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useCreateSplit } from '../hooks/useCreateSplit'
 import { CreateSplit } from '../components/CreateSplit'
 import { TransactionStatus } from '../components/TransactionStatus'
+import { ContactsManager } from '../components/ContactsManager'
 import { getRecentSplits, addRecentSplit } from '../lib/recentSplits'
 
 type HomePageProps = {
@@ -62,6 +63,8 @@ export function HomePage({ address }: HomePageProps) {
           </button>
         </div>
       </div>
+
+      <ContactsManager />
 
       {recent.length > 0 && (
         <div className="card">
