@@ -131,11 +131,13 @@ Every push to `main` runs two parallel jobs (see `.github/workflows/ci.yml`):
 
   ![CI/CD pipeline passing](screenshots/01-cicd-pipeline-passing.jpg)
 
-- [x] **Test output, 15 passing tests** (captured from the live CI run, not just local)
+- [x] **Test output** (captured from the live CI run, not just local — 15 passing at the time of capture; 21 pass today, see [Testing](#tech-stack))
 
-  ![Test output showing 15 passing tests](screenshots/02-test-output-15-passing.jpg)
+  ![Test output showing tests passing](screenshots/02-test-output-15-passing.jpg)
 
-- [ ] **Mobile responsive UI** — pending: needs a screenshot from an actual narrow viewport (the automated browser environment used to build this couldn't be resized below its fixed render size). CSS breakpoint is in `src/App.css` under `@media (max-width: 480px)`.
+- [x] **Mobile responsive UI** (real iPhone Safari, `kitty-level-3.vercel.app`)
+
+  ![Mobile responsive layout](screenshots/03-mobile-responsive.png)
 
 ## Demo video
 
