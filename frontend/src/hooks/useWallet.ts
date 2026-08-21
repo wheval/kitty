@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { StellarWalletsKit } from '../lib/walletKit'
+import { getWalletKit } from '../lib/walletKit'
 import { classifyError, type KittyError } from '../lib/errors'
 
 export function useWallet() {
@@ -11,7 +11,8 @@ export function useWallet() {
     setError(null)
     setConnecting(true)
     try {
-      const { address } = await StellarWalletsKit.authModal()
+      const kit = await getWalletKit()
+      const { address } = await kit.authModal()
       setAddress(address)
     } catch (err) {
       setError(classifyError(err))
@@ -22,7 +23,8 @@ export function useWallet() {
 
   const disconnect = useCallback(async () => {
     try {
-      await StellarWalletsKit.disconnect()
+      const kit = await getWalletKit()
+      await kit.disconnect()
     } catch {
       // Best-effort: still clear local state below even if the module has no-op disconnect.
     }
