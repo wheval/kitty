@@ -1,22 +1,25 @@
-# Soroban Project
+# Kitty contracts — Soroban
 
-## Project Structure
+Two contracts, wired together with a genuine cross-contract call.
 
-This repository uses the recommended structure for a Soroban project:
+- **`kitty-split`** — tracks a group bill split on-chain: a creator fronts an expense, recipients each pay their own share directly to the creator in native XLM. After a successful payment, it calls into `kitty-reputation` to report the payment.
+- **`kitty-reputation`** — tracks each address's on-time-payment count and total volume, writable only by the authorized `kitty-split` deployment (enforced via `require_auth` on the split contract's own address).
 
-```text
-.
-├── contracts
-│   └── hello_world
-│       ├── src
-│       │   ├── lib.rs
-│       │   └── test.rs
-│       └── Cargo.toml
-├── Cargo.toml
-└── README.md
+Deployment details, contract IDs, and the transaction hash proving the cross-contract call happened on-chain: [`DEPLOYMENT.md`](DEPLOYMENT.md).
+
+## Build
+
+`kitty-split` embeds `kitty-reputation`'s compiled wasm via `contractimport!`, so build order matters:
+
+```bash
+cargo build -p kitty-reputation --target wasm32v1-none --release
+cargo build --target wasm32v1-none --release
 ```
 
-- New Soroban contracts can be put in `contracts`, each in their own directory. There is already a `hello_world` contract in there to get you started.
-- If you initialized this project with any other example contracts via `--with-example`, those contracts will be in the `contracts` directory as well.
-- Contracts should have their own `Cargo.toml` files that rely on the top-level `Cargo.toml` workspace for their dependencies.
-- Frontend libraries can be added to the top-level directory as well. If you initialized this project with a frontend template via `--frontend-template` you will have those files already included.
+## Test
+
+```bash
+cargo test --workspace
+```
+
+7 tests total: 3 in `kitty-reputation` (score recording, unauthorized-caller rejection, double-initialize rejection), 4 in `kitty-split` (including one that verifies the cross-contract call actually updates `kitty-reputation`'s state, not just that `kitty-split`'s own storage changed).
