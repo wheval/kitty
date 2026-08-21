@@ -72,7 +72,7 @@ export function RecipientInput({ address, onAddressChange }: RecipientInputProps
   }
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', flex: '1 1 160px', minWidth: 0 }}>
+    <div ref={containerRef} className="recipient-input-wrapper">
       <input
         placeholder="Name or address (G...)"
         value={text}

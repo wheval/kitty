@@ -57,7 +57,7 @@ export function ContactsManager() {
           placeholder="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          style={{ flex: '0 1 140px' }}
+          className="contact-name-input"
         />
         <input
           placeholder="Address (G...)"

@@ -156,6 +156,16 @@ label {
   flex: 0 1 110px;
 }
 
+.recipient-input-wrapper {
+  position: relative;
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+.contact-name-input {
+  flex: 0 1 140px;
+}
+
 .mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.85rem;
@@ -292,9 +302,12 @@ a:hover {
   }
 
   .recipient-row input,
-  .recipient-row .amount-input {
+  .recipient-row .amount-input,
+  .recipient-input-wrapper,
+  .contact-name-input {
     max-width: none;
     width: 100%;
+    flex: 1 1 auto;
   }
 
   .row {
