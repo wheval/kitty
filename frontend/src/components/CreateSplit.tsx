@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { StrKey } from '@stellar/stellar-sdk'
+import { RecipientInput } from './RecipientInput'
 
 type Recipient = { address: string; amount: string }
 
@@ -21,10 +21,12 @@ export function CreateSplit({ disabled, pending, onCreate }: CreateSplitProps) {
     { address: '', amount: '' },
   ])
 
-  const updateRecipient = (index: number, field: keyof Recipient, value: string) => {
-    setRecipients((prev) =>
-      prev.map((r, i) => (i === index ? { ...r, [field]: value } : r)),
-    )
+  const updateAddress = (index: number, address: string) => {
+    setRecipients((prev) => prev.map((r, i) => (i === index ? { ...r, address } : r)))
+  }
+
+  const updateAmount = (index: number, amount: string) => {
+    setRecipients((prev) => prev.map((r, i) => (i === index ? { ...r, amount } : r)))
   }
 
   const addRecipient = () => setRecipients((prev) => [...prev, { address: '', amount: '' }])
@@ -32,14 +34,14 @@ export function CreateSplit({ disabled, pending, onCreate }: CreateSplitProps) {
     setRecipients((prev) => prev.filter((_, i) => i !== index))
 
   const validRecipients = recipients.filter(
-    (r) => StrKey.isValidEd25519PublicKey(r.address.trim()) && toStroops(r.amount) !== null,
+    (r) => r.address.length > 0 && toStroops(r.amount) !== null,
   )
   const canSubmit = validRecipients.length === recipients.length && recipients.length > 0 && !disabled
 
   const total = recipients.reduce((sum, r) => sum + (Number(r.amount) || 0), 0)
 
   const handleSubmit = () => {
-    const addresses = recipients.map((r) => r.address.trim())
+    const addresses = recipients.map((r) => r.address)
     const amounts = recipients.map((r) => toStroops(r.amount)!)
     onCreate(addresses, amounts)
   }
@@ -48,40 +50,32 @@ export function CreateSplit({ disabled, pending, onCreate }: CreateSplitProps) {
     <div className="card">
       <h2 style={{ marginTop: 0 }}>Create a split</h2>
 
-      {recipients.map((r, i) => {
-        const addressValid =
-          r.address.trim().length === 0 || StrKey.isValidEd25519PublicKey(r.address.trim())
-        return (
-          <div key={i}>
-            <div className="recipient-row">
-              <input
-                placeholder="Recipient address (G...)"
-                value={r.address}
-                onChange={(e) => updateRecipient(i, 'address', e.target.value)}
-              />
-              <input
-                className="amount-input"
-                type="number"
-                min="0"
-                step="0.0000001"
-                placeholder="XLM"
-                value={r.amount}
-                onChange={(e) => updateRecipient(i, 'amount', e.target.value)}
-              />
-              {recipients.length > 1 && (
-                <button
-                  className="btn-secondary btn-small"
-                  onClick={() => removeRecipient(i)}
-                  type="button"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-            {!addressValid && <p className="error">Invalid Stellar address</p>}
-          </div>
-        )
-      })}
+      {recipients.map((r, i) => (
+        <div key={i} className="recipient-row" style={{ alignItems: 'flex-start' }}>
+          <RecipientInput
+            address={r.address}
+            onAddressChange={(address) => updateAddress(i, address)}
+          />
+          <input
+            className="amount-input"
+            type="number"
+            min="0"
+            step="0.0000001"
+            placeholder="XLM"
+            value={r.amount}
+            onChange={(e) => updateAmount(i, e.target.value)}
+          />
+          {recipients.length > 1 && (
+            <button
+              className="btn-secondary btn-small"
+              onClick={() => removeRecipient(i)}
+              type="button"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      ))}
 
       <button className="btn-secondary btn-small" onClick={addRecipient} type="button">
         + Add recipient

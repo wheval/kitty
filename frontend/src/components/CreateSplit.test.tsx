@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { CreateSplit } from './CreateSplit'
@@ -7,6 +7,10 @@ const VALID_ADDRESS_1 = 'GADD25NYDSJQGLESOAE6ID2EURIRYZQJJDR2OZ3L4EDDIUP4F262BCZ
 const VALID_ADDRESS_2 = 'GB4USHWJJM7DJHCVJADMA5OKQPYHNJL2QM7DPNAT43AAODB75KFQRZEO'
 
 describe('CreateSplit', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
   it('disables the submit button until all recipients have a valid address and amount', async () => {
     const user = userEvent.setup()
     const onCreate = vi.fn()
@@ -15,7 +19,7 @@ describe('CreateSplit', () => {
     const submit = screen.getByRole('button', { name: /create split/i })
     expect(submit).toBeDisabled()
 
-    const addressInputs = screen.getAllByPlaceholderText(/recipient address/i)
+    const addressInputs = screen.getAllByPlaceholderText(/name or address/i)
     const amountInputs = screen.getAllByPlaceholderText('XLM')
 
     await user.type(addressInputs[0], VALID_ADDRESS_1)
@@ -27,14 +31,17 @@ describe('CreateSplit', () => {
     expect(submit).toBeEnabled()
   })
 
-  it('shows a validation message for an invalid Stellar address', async () => {
+  it('does not resolve an address for text that matches no saved contact', async () => {
     const user = userEvent.setup()
     render(<CreateSplit disabled={false} pending={false} onCreate={vi.fn()} />)
 
-    const addressInputs = screen.getAllByPlaceholderText(/recipient address/i)
-    await user.type(addressInputs[0], 'not-a-real-address')
+    const addressInputs = screen.getAllByPlaceholderText(/name or address/i)
+    await user.type(addressInputs[0], 'not-a-real-address-or-contact')
 
-    expect(screen.getByText(/invalid stellar address/i)).toBeInTheDocument()
+    // Unresolved text shouldn't let the form submit even with an amount.
+    const amountInputs = screen.getAllByPlaceholderText('XLM')
+    await user.type(amountInputs[0], '50')
+    expect(screen.getByRole('button', { name: /create split/i })).toBeDisabled()
   })
 
   it('calls onCreate with the entered recipients and stroop amounts', async () => {
@@ -42,7 +49,7 @@ describe('CreateSplit', () => {
     const onCreate = vi.fn()
     render(<CreateSplit disabled={false} pending={false} onCreate={onCreate} />)
 
-    const addressInputs = screen.getAllByPlaceholderText(/recipient address/i)
+    const addressInputs = screen.getAllByPlaceholderText(/name or address/i)
     const amountInputs = screen.getAllByPlaceholderText('XLM')
 
     await user.type(addressInputs[0], VALID_ADDRESS_1)
