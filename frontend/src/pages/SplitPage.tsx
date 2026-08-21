@@ -37,14 +37,14 @@ export function SplitPage({ address, onPaid }: SplitPageProps) {
     return (
       <div className="card">
         <p className="error">"{id}" isn't a valid split ID.</p>
-        <Link to="/">← Back home</Link>
+        <Link to="/app">← Back home</Link>
       </div>
     )
   }
 
   return (
     <>
-      <Link to="/" className="muted" style={{ display: 'inline-block', marginBottom: 12 }}>
+      <Link to="/app" className="muted" style={{ display: 'inline-block', marginBottom: 12 }}>
         ← Back
       </Link>
 

@@ -24,14 +24,14 @@ export function HomePage({ address }: HomePageProps) {
     if (createSplit.status === 'success' && createSplit.result !== null) {
       const id = createSplit.result.toString()
       addRecentSplit(id)
-      navigate(`/split/${id}`)
+      navigate(`/app/split/${id}`)
     }
   }, [createSplit.status, createSplit.result, navigate])
 
   const handleLookup = () => {
     const trimmed = lookupInput.trim()
     if (/^\d+$/.test(trimmed)) {
-      navigate(`/split/${trimmed}`)
+      navigate(`/app/split/${trimmed}`)
     }
   }
 
@@ -74,7 +74,7 @@ export function HomePage({ address }: HomePageProps) {
               <button
                 key={id}
                 className="btn-secondary btn-small"
-                onClick={() => navigate(`/split/${id}`)}
+                onClick={() => navigate(`/app/split/${id}`)}
                 type="button"
               >
                 #{id}

@@ -6,15 +6,16 @@ import { WalletConnect } from './components/WalletConnect'
 import { ReputationBadge } from './components/ReputationBadge'
 import { HomePage } from './pages/HomePage'
 import { SplitPage } from './pages/SplitPage'
+import { LandingPage } from './pages/LandingPage'
 
-function App() {
+function AppShell() {
   const wallet = useWallet()
   const reputation = useReputation(wallet.address)
 
   return (
     <div className="app">
       <header>
-        <h1>🐱 Kitty</h1>
+        <img src="/brand/kitty_logo_lockup_color.png" alt="Kitty" className="brand-logo" />
         <p className="tagline">Split a bill, settle it on-chain.</p>
       </header>
 
@@ -35,11 +36,20 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage address={wallet.address} />} />
         <Route
-          path="/split/:id"
+          path="split/:id"
           element={<SplitPage address={wallet.address} onPaid={reputation.refresh} />}
         />
       </Routes>
     </div>
+  )
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/app/*" element={<AppShell />} />
+    </Routes>
   )
 }
 
