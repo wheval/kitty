@@ -1,32 +1,124 @@
-# React + TypeScript + Vite
+# 🐱 Kitty — Level 3 (Orange Belt)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Split a bill, settle it on-chain, and build a reputation for paying on time — a production-shaped Stellar dApp: two Soroban contracts talking to each other, real-time event sync, CI/CD, and a tested, mobile-responsive frontend.
 
-Currently, two official plugins are available:
+**Live demo:** https://kitty-level-3.vercel.app
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## What's new since Level 2
 
-## React Compiler
+Level 2 was one contract (`KittySplit`) and one wallet flow. Level 3 adds:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **A second contract, `KittyReputation`**, and a genuine **inter-contract call**: when `pay_share` succeeds on `KittySplit`, it calls `record_payment` on `KittyReputation` *in the same transaction* — no separate step, no off-chain bridge. Verified end-to-end on real testnet (see [Architecture](#architecture) below).
+- **CI/CD**: GitHub Actions runs `cargo test` for both contracts and `npm run build` + `vitest` for the frontend on every push.
+- **Frontend tests**: Vitest + React Testing Library, 15 passing tests across 3 files (error classification, split-creation form validation, reputation badge rendering).
+- **Mobile-responsive layout**: a dedicated breakpoint, touch-sized tap targets, and a single-column layout under 480px.
+- **Loading states**: skeleton loaders while split/reputation data is being fetched, not just error states.
 
-## Expanding the Oxlint configuration
+## Architecture
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```
+┌──────────────┐   pay_share(split_id, payer)   ┌──────────────┐
+│   Frontend   │ ─────────────────────────────▶ │  KittySplit  │
+│ (React + TS) │                                 │  contract    │
+└──────────────┘                                 └──────┬───────┘
+       ▲                                                 │
+       │ get_score(address)                              │ 1. token.transfer(payer → creator)
+       │                                                 │ 2. record_payment(split_contract, payer, amount)
+       │                                                 ▼
+       │                                          ┌──────────────┐
+       └───────────────────────────────────────── │ KittyReputation │
+                                                    │   contract      │
+                                                    └─────────────────┘
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+`record_payment` only accepts calls where `split_contract.require_auth()` succeeds **and** matches the address `KittyReputation` was initialized with — so only the real `KittySplit` deployment can write reputation data, not an arbitrary caller.
+
+## Contracts
+
+- **Network:** Stellar Testnet
+- **KittySplit contract ID:** `CCXLPKQCXVHAYW7UNZWLCAW54NBCGP754OEFGWPUQ5PNJPTREMMXUEHY`
+- **KittyReputation contract ID:** `CCPDWYE2RPQ7RZSJNITNMFB3JMPSZWL7NH4BIRT44XDPZ2X4TICQKVSQ`
+- **Cross-contract call, verified on-chain:** [`41398a124eb5fe228721a4f603c33a7b7c32a20c406110ddca0226a5c86e21e7`](https://stellar.expert/explorer/testnet/tx/41398a124eb5fe228721a4f603c33a7b7c32a20c406110ddca0226a5c86e21e7) — this `pay_share` call transferred XLM **and** wrote to `KittyReputation` in one transaction; confirmed by querying `get_score` immediately after.
+
+Full deployment details, redeploy steps, and every verification step: [`../contract/DEPLOYMENT.md`](../contract/DEPLOYMENT.md).
+
+Source: [`../contract/contracts/kitty-split`](../contract/contracts/kitty-split), [`../contract/contracts/kitty-reputation`](../contract/contracts/kitty-reputation).
+
+## Tech stack
+
+- **Contracts:** Rust, Soroban SDK 27, deployed via `stellar` CLI
+- **Frontend:** React + TypeScript (Vite), [`@stellar/stellar-sdk`](https://github.com/stellar/js-stellar-sdk), [`@creit.tech/stellar-wallets-kit`](https://github.com/Creit-Tech/Stellar-Wallets-Kit) for multi-wallet support
+- **Testing:** `cargo test` (contract unit tests, 7 total), Vitest + React Testing Library (frontend, 15 total)
+- **CI/CD:** GitHub Actions (`.github/workflows/ci.yml`)
+- **Hosting:** Vercel
+
+## Setup instructions
+
+### Prerequisites
+
+- Node.js 20+ (CI uses Node 22)
+- A Stellar wallet extension (Freighter, xBull, Albedo, Lobstr, Rabet, or Hana), set to **Testnet**
+- A funded testnet account — `https://friendbot.stellar.org/?addr=YOUR_ADDRESS`
+
+### Run locally
+
+```bash
+npm install
+npm run dev
+```
+
+### Build
+
+```bash
+npm run build
+```
+
+### Run frontend tests
+
+```bash
+npm run test        # single run
+npm run test:watch  # watch mode
+```
+
+### Run contract tests
+
+```bash
+cd ../contract
+cargo build -p kitty-reputation --target wasm32v1-none --release  # kitty-split's contractimport! needs this first
+cargo test --workspace
+```
+
+## CI/CD
+
+Every push to `main` runs two parallel jobs (see `.github/workflows/ci.yml`):
+
+1. **Contract tests** — builds `kitty-reputation`'s wasm (required by `kitty-split`'s `contractimport!`), then `cargo test --workspace` across both contracts.
+2. **Frontend build, lint, and tests** — `npm install`, `npm run build` (which runs `tsc -b` then `vite build`), then `npm run test` (Vitest).
+
+## Usage
+
+1. Connect your wallet.
+2. **Create a split** — add recipients and their share amounts; this calls `create_split`.
+3. Each recipient connects their own wallet, opens the split, and **pays their share** — this calls `pay_share`, which pays the creator directly and reports the payment to `KittyReputation` in the same transaction.
+4. Connected wallets see their on-chain **reputation badge** — total shares paid on time and total XLM settled — read live from `KittyReputation.get_score`.
+5. Payments from any browser tab appear in **Live activity** automatically via event polling, and paid/pending badges update without a manual refresh.
+
+## Screenshots
+
+- [x] **CI/CD pipeline running** (GitHub Actions, both jobs green)
+
+  ![CI/CD pipeline passing](screenshots/01-cicd-pipeline-passing.jpg)
+
+- [x] **Test output, 15 passing tests** (captured from the live CI run, not just local)
+
+  ![Test output showing 15 passing tests](screenshots/02-test-output-15-passing.jpg)
+
+- [ ] **Mobile responsive UI** — pending: needs a screenshot from an actual narrow viewport (the automated browser environment used to build this couldn't be resized below its fixed render size). CSS breakpoint is in `src/App.css` under `@media (max-width: 480px)`.
+
+## Demo video
+
+_Pending — 1–2 minute walkthrough to be recorded separately._
+
+## Notes
+
+This level's scope: a second contract, real inter-contract communication, CI/CD, frontend testing, mobile responsiveness, and loading states — all layered onto the same Kitty bill-splitting core from Levels 1–2. Stablecoin settlement, cross-border path payments, and send-to-social-handle addressing (the full Kitty product vision) remain scoped for future work.
