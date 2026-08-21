@@ -1,6 +1,7 @@
 import type { SplitRecord } from '../contracts/kitty-split/src'
 import type { PaidEvent } from '../hooks/useSplitEvents'
 import { Skeleton } from './Skeleton'
+import { findContactByAddress } from '../lib/contacts'
 
 type SplitStatusProps = {
   splitId: bigint
@@ -15,6 +16,11 @@ type SplitStatusProps = {
 
 function shorten(address: string) {
   return `${address.slice(0, 4)}...${address.slice(-4)}`
+}
+
+function AddressLabel({ address }: { address: string }) {
+  const contact = findContactByAddress(address)
+  return contact ? <strong>{contact.name}</strong> : <span className="mono">{shorten(address)}</span>
 }
 
 function fromStroops(amount: bigint) {
@@ -64,13 +70,13 @@ export function SplitStatus({
       </div>
 
       <p className="muted">
-        Fronted by <span className="mono">{shorten(split.creator)}</span> — total{' '}
+        Fronted by <AddressLabel address={split.creator} /> — total{' '}
         <strong>{fromStroops(split.total)} XLM</strong>
       </p>
 
       {split.recipients.map((recipient, i) => (
         <div className="recipient-item" key={recipient}>
-          <span className="mono">{shorten(recipient)}</span>
+          <AddressLabel address={recipient} />
           <span>
             <span className="mono" style={{ marginRight: 10 }}>
               {fromStroops(split.amounts[i])} XLM
@@ -100,7 +106,7 @@ export function SplitStatus({
           <strong>Live activity</strong>
           {events.map((e) => (
             <div className="event-log-item" key={e.id}>
-              {shorten(e.payer)} paid {fromStroops(e.amount)} XLM
+              <AddressLabel address={e.payer} /> paid {fromStroops(e.amount)} XLM
             </div>
           ))}
         </div>
