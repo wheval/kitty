@@ -10,7 +10,7 @@ Level 2 was one contract (`KittySplit`) and one wallet flow. Level 3 adds:
 
 - **A second contract, `KittyReputation`**, and a genuine **inter-contract call**: when `pay_share` succeeds on `KittySplit`, it calls `record_payment` on `KittyReputation` *in the same transaction* — no separate step, no off-chain bridge. Verified end-to-end on real testnet (see [Architecture](#architecture) below).
 - **CI/CD**: GitHub Actions runs `cargo test` for both contracts and `npm run build` + `vitest` for the frontend on every push.
-- **Frontend tests**: Vitest + React Testing Library, 15 passing tests across 3 files (error classification, split-creation form validation, reputation badge rendering).
+- **Frontend tests**: Vitest + React Testing Library, 21 passing tests across 4 files (error classification, split-creation form validation, reputation badge rendering, saved contacts).
 - **Mobile-responsive layout**: a dedicated breakpoint, touch-sized tap targets, and a single-column layout under 480px.
 - **Loading states**: skeleton loaders while split/reputation data is being fetched, not just error states.
 
@@ -18,12 +18,20 @@ Level 2 was one contract (`KittySplit`) and one wallet flow. Level 3 adds:
 
 The first version of this app worked but read as a demo, not a product — no routing, hardcoded config, no crash isolation, an unsplit bundle, and default Vite branding. Fixed:
 
-- **Real routing (`react-router-dom`)**: `/` and `/split/:id` are actual, shareable, deep-linkable URLs — not "paste an ID into a text box." A `vercel.json` rewrite rule makes direct visits to `/split/:id` work in production too (verified: this genuinely 404'd before the rewrite was added).
+- **Real routing (`react-router-dom`)**: `/app/split/:id` is an actual, shareable, deep-linkable URL — not "paste an ID into a text box." A `vercel.json` rewrite rule makes direct visits work in production too (verified: this genuinely 404'd before the rewrite was added).
 - **Environment-based config**: contract IDs and network settings come from `VITE_*` env vars (see `.env.example`), with the current testnet deployment as the fallback default — so the same code can point at a different deployment or network without editing source.
 - **Error boundary**: a render crash shows a recoverable error screen instead of a blank page.
 - **Code splitting**: the wallet kit (which pulls in SDKs for every supported wallet, including hardware wallets like Trezor/Ledger) is now lazy-loaded on first "Connect Wallet" click via dynamic `import()`, instead of shipping in the initial bundle. Each wallet module is its own chunk, loaded only if needed.
 - **Recent splits**: a lightweight localStorage-backed "recent splits" list on the home page, so returning users don't lose track of splits they've viewed or created.
 - **Real branding**: proper page title, meta description, Open Graph tags, and a favicon — not the default Vite template.
+
+## Rebrand + a real address book
+
+The app was rebuilt around Kitty's actual logo (violet `#6030FA` / pink `#FD3599` / ink `#050232`) — no cat, no mascot, just the mark. This included:
+
+- A **marketing landing page** at `/` explaining the product before anyone connects a wallet — hero, differentiators, and an honest "available now vs. coming next" section, so the ambitious pitch (cross-border, group savings, social-handle payments) stays truthful about what Level 3 actually ships. The functional app moved to `/app`.
+- **Saved contacts**: save a friend's address once with a name, then split to "Alice" instead of pasting a 56-character address every time you create a split. Names resolve both ways — typing a name in the split form autocompletes to their address, and any address that matches a saved contact displays as their name throughout the app (split status, live activity feed). Local to your browser (`localStorage`), tested (`src/lib/contacts.test.ts`).
+- Caught and fixed a real bug in the process: leftover Vite-template CSS (`index.css`) was overriding heading colors under `prefers-color-scheme: dark`, making the landing page headline nearly invisible for anyone with a dark-mode OS preference — found by actually looking at the rendered page, not just the code.
 
 ## Architecture
 
@@ -109,12 +117,13 @@ Every push to `main` runs two parallel jobs (see `.github/workflows/ci.yml`):
 
 ## Usage
 
-1. Connect your wallet.
-2. **Create a split** on the home page (`/`) — add recipients and their share amounts; this calls `create_split` and redirects you to `/split/:id`.
-3. **That URL is shareable** — send it to the people who owe money, or they can look it up from the home page. Each recipient connects their own wallet on that page and **pays their share** — this calls `pay_share`, which pays the creator directly and reports the payment to `KittyReputation` in the same transaction.
-4. Connected wallets see their on-chain **reputation badge** — total shares paid on time and total XLM settled — read live from `KittyReputation.get_score`.
-5. Payments from any browser tab appear in **Live activity** automatically via event polling, and paid/pending badges update without a manual refresh.
-6. The home page remembers **recent splits** you've viewed or created (stored locally in your browser).
+1. Land on `/` — the marketing page. Click **Launch app** to go to `/app`.
+2. Connect your wallet.
+3. **Create a split** — type a recipient's saved name (autocomplete) or paste their address directly; add their share amount. This calls `create_split` and redirects you to `/app/split/:id`.
+4. **That URL is shareable** — send it to the people who owe money, or they can look it up from the app home page. Each recipient connects their own wallet on that page and **pays their share** — this calls `pay_share`, which pays the creator directly and reports the payment to `KittyReputation` in the same transaction.
+5. Connected wallets see their on-chain **reputation badge** — total shares paid on time and total XLM settled — read live from `KittyReputation.get_score`.
+6. Payments from any browser tab appear in **Live activity** automatically via event polling, and paid/pending badges update without a manual refresh.
+7. The app home page remembers **recent splits** you've viewed or created, and lets you manage **saved contacts** (stored locally in your browser).
 
 ## Screenshots
 
