@@ -1,14 +1,18 @@
 :root {
-  --bg: #0f1115;
-  --panel: #171a21;
-  --border: #2a2e38;
-  --text: #f2f3f5;
-  --muted: #9aa0ab;
-  --accent: #7c5cff;
-  --accent-hover: #6a4bee;
-  --success: #3ecf8e;
-  --error: #ff6b6b;
-  --pending: #f5b840;
+  --ink: #050232;
+  --violet: #6030FA;
+  --violet-deep: #4A1FD8;
+  --pink: #FD3599;
+  --bg: #FAFAFC;
+  --panel: #FFFFFF;
+  --border: #ECEAF5;
+  --muted: #6B6B85;
+  --success: oklch(0.72 0.19 155);
+  --success-text: oklch(0.4 0.15 155);
+  --pending: oklch(0.78 0.17 80);
+  --pending-text: oklch(0.48 0.13 80);
+  --error: oklch(0.6 0.22 25);
+  --error-text: oklch(0.5 0.2 25);
 }
 
 * {
@@ -18,8 +22,8 @@
 body {
   margin: 0;
   background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+  color: var(--ink);
+  font-family: -apple-system, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
 }
 
 .app {
@@ -33,59 +37,66 @@ header {
   margin-bottom: 32px;
 }
 
-header h1 {
-  font-size: 2.2rem;
-  margin: 0 0 4px;
+.brand-logo {
+  height: 30px;
+  width: auto;
 }
 
 .tagline {
   color: var(--muted);
-  margin: 0;
+  margin: 8px 0 0;
+  font-size: 15px;
 }
 
 .card {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 24px;
   margin-bottom: 20px;
+  box-shadow: 0 1px 2px rgba(5, 2, 50, 0.04);
 }
 
 button {
   font-family: inherit;
   font-size: 1rem;
-  font-weight: 600;
-  border-radius: 10px;
+  font-weight: 700;
+  border-radius: 999px;
   border: none;
-  padding: 12px 20px;
+  padding: 13px 20px;
   cursor: pointer;
-  transition: background 0.15s ease;
-  min-height: 44px; /* touch target */
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  min-height: 44px;
 }
 
 .btn-primary {
-  background: var(--accent);
+  background: var(--ink);
   color: white;
   width: 100%;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--accent-hover);
+  background: var(--violet-deep);
 }
 
 .btn-primary:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
 .btn-secondary {
   background: transparent;
-  color: var(--text);
-  border: 1px solid var(--border);
+  color: var(--ink);
+  border: 1.5px solid var(--border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--violet);
+  color: var(--violet-deep);
 }
 
 .btn-small {
-  padding: 6px 12px;
+  padding: 7px 14px;
   font-size: 0.85rem;
   min-height: 36px;
 }
@@ -94,22 +105,24 @@ input {
   font-family: inherit;
   font-size: 1rem;
   background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  color: var(--ink);
+  border-radius: 12px;
   padding: 12px 14px;
   width: 100%;
   min-height: 44px;
 }
 
 input:focus {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--violet);
   outline-offset: 1px;
+  border-color: var(--violet);
 }
 
 label {
   display: block;
   font-size: 0.85rem;
+  font-weight: 700;
   color: var(--muted);
   margin-bottom: 6px;
 }
@@ -154,15 +167,19 @@ label {
 }
 
 .success {
-  color: var(--success);
+  color: var(--success-text);
 }
 
 .error {
-  color: var(--error);
+  color: var(--error-text);
 }
 
 a {
-  color: var(--accent);
+  color: var(--violet);
+}
+
+a:hover {
+  color: var(--violet-deep);
 }
 
 .badge {
@@ -170,20 +187,20 @@ a {
   align-items: center;
   gap: 4px;
   font-size: 0.75rem;
-  font-weight: 600;
-  padding: 3px 10px;
+  font-weight: 800;
+  padding: 4px 12px;
   border-radius: 999px;
   white-space: nowrap;
 }
 
 .badge-paid {
-  background: rgba(62, 207, 142, 0.15);
-  color: var(--success);
+  background: color-mix(in oklch, var(--success) 16%, white);
+  color: var(--success-text);
 }
 
 .badge-pending {
-  background: rgba(245, 184, 64, 0.15);
-  color: var(--pending);
+  background: color-mix(in oklch, var(--pending) 18%, white);
+  color: var(--pending-text);
 }
 
 .recipient-item {
@@ -212,29 +229,30 @@ a {
 }
 
 .status-banner {
-  padding: 10px 14px;
-  border-radius: 10px;
+  padding: 12px 16px;
+  border-radius: 14px;
   font-size: 0.9rem;
   margin-top: 12px;
+  font-weight: 600;
 }
 
 .status-pending {
-  background: rgba(245, 184, 64, 0.12);
-  color: var(--pending);
+  background: color-mix(in oklch, var(--pending) 14%, white);
+  color: var(--pending-text);
 }
 
 .status-success {
-  background: rgba(62, 207, 142, 0.12);
-  color: var(--success);
+  background: color-mix(in oklch, var(--success) 14%, white);
+  color: var(--success-text);
 }
 
 .status-error {
-  background: rgba(255, 107, 107, 0.12);
-  color: var(--error);
+  background: color-mix(in oklch, var(--error) 12%, white);
+  color: var(--error-text);
 }
 
 .skeleton {
-  background: linear-gradient(90deg, var(--border) 25%, #333844 37%, var(--border) 63%);
+  background: linear-gradient(90deg, var(--border) 25%, #DDD8F0 37%, var(--border) 63%);
   background-size: 400% 100%;
   animation: skeleton-loading 1.4s ease infinite;
   border-radius: 6px;
@@ -252,9 +270,10 @@ a {
 .reputation-pill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.8rem;
-  color: var(--muted);
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--violet-deep);
 }
 
 /* Mobile responsive breakpoint */
@@ -263,13 +282,9 @@ a {
     padding: 20px 14px 60px;
   }
 
-  header h1 {
-    font-size: 1.7rem;
-  }
-
   .card {
     padding: 16px;
-    border-radius: 12px;
+    border-radius: 14px;
   }
 
   .recipient-row {
