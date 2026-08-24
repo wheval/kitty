@@ -25,10 +25,11 @@ export function LandingPage() {
             <div style={{ marginBottom: 22 }}>
               <span className="landing-pill landing-pill-live">● Live on Stellar Testnet</span>
             </div>
-            <h1 className="landing-h1">One pool for everything you split with friends.</h1>
+            <h1 className="landing-h1">The shared account for the family you support back home.</h1>
             <p className="landing-sub">
-              Bills, subscriptions, trips, recurring fees — paid back instantly on-chain,
-              wherever everyone is, whatever wallet they use. No more "I'll Venmo you later."
+              Rent, school fees, medical bills, monthly support — split across everyone who
+              should be carrying it, settled instantly on-chain, wherever everyone is, whatever
+              wallet or currency they use. You shouldn't be the only one sending money home.
             </p>
             <div style={{ display: 'flex', gap: 14, marginTop: 34, flexWrap: 'wrap' }}>
               <Link to="/app" className="landing-btn landing-btn-primary">
@@ -58,17 +59,17 @@ export function LandingPage() {
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <div className="landing-card landing-preview-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
-                <span style={{ fontWeight: 800, fontSize: 15 }}>Dinner in Lisbon</span>
+                <span style={{ fontWeight: 800, fontSize: 15 }}>Mom's rent — August</span>
                 <span className="landing-pill" style={{ background: 'color-mix(in oklch, var(--violet) 12%, white)', color: 'var(--violet-deep)' }}>
                   #204
                 </span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '11px 0', borderTop: '1px solid var(--border)' }}>
-                <span className="mono muted">GADD…BCZA</span>
+                <span>Amara</span>
                 <span className="badge badge-paid">✓ paid</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '11px 0', borderTop: '1px solid var(--border)' }}>
-                <span className="mono muted">GB4U…RZEO</span>
+                <span>Uncle Femi</span>
                 <span className="badge badge-pending">pending</span>
               </div>
               <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -81,7 +82,7 @@ export function LandingPage() {
       </div>
 
       <div id="how" className="landing-wrap" style={{ padding: '30px 0 90px' }}>
-        <h2 className="landing-section-title">Not another app that just tracks who owes what.</h2>
+        <h2 className="landing-section-title">Not another app that lets one person carry the whole family alone.</h2>
         <div className="landing-diff-grid">
           <div className="landing-card" style={{ padding: 28 }}>
             <div className="landing-diff-icon" style={{ background: 'color-mix(in oklch, var(--violet) 12%, white)' }}>
@@ -91,8 +92,8 @@ export function LandingPage() {
             </div>
             <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 8px' }}>It actually settles</h3>
             <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--muted)', margin: 0 }}>
-              Splitwise tracks an IOU — you still have to pay separately. Kitty moves real money
-              the moment someone pays their share.
+              Splitwise tracks an IOU — you still have to chase everyone and collect separately.
+              Kitty moves real money the moment each person sends their share.
             </p>
           </div>
 
@@ -106,7 +107,7 @@ export function LandingPage() {
             <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 8px' }}>On-chain reputation</h3>
             <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--muted)', margin: 0 }}>
               Every on-time payment is recorded by a second smart contract — a public,
-              unfakeable record of who's reliable. No other split app has this.
+              unfakeable record of who actually shows up for the family. No other app has this.
             </p>
           </div>
 
@@ -119,8 +120,8 @@ export function LandingPage() {
             </div>
             <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 8px' }}>Wallet-agnostic</h3>
             <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--muted)', margin: 0 }}>
-              Freighter, xBull, Albedo, Lobstr, Rabet, Hana — pay from whatever Stellar wallet
-              you already use.
+              Freighter, xBull, Albedo, Lobstr, Rabet, Hana — everyone pays from whatever
+              Stellar wallet they already use, wherever they are.
             </p>
           </div>
         </div>
@@ -144,7 +145,7 @@ export function LandingPage() {
               </div>
               <ul className="landing-roadmap-list">
                 {[
-                  'Split a bill, settle instantly on-chain',
+                  'Split shared family costs, settle instantly on-chain',
                   'Multi-wallet support (6 Stellar wallets)',
                   'On-chain payment reputation',
                   'Real-time status via on-chain events',
@@ -186,7 +187,7 @@ export function LandingPage() {
 
       <div className="landing-wrap" style={{ padding: '88px 0', textAlign: 'center' }}>
         <h2 className="landing-section-title" style={{ maxWidth: 540 }}>
-          Front the bill once. Never chase anyone again.
+          You shouldn't be the only one sending money home.
         </h2>
         <Link to="/app" className="landing-btn landing-btn-primary" style={{ marginTop: 28 }}>
           Launch app →
