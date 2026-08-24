@@ -14,11 +14,11 @@ type SplitStatusProps = {
   onRefresh: () => void
 }
 
-function shorten(address: string) {
+export function shorten(address: string) {
   return `${address.slice(0, 4)}...${address.slice(-4)}`
 }
 
-function AddressLabel({ address }: { address: string }) {
+export function AddressLabel({ address }: { address: string }) {
   const contact = findContactByAddress(address)
   return contact ? <strong>{contact.name}</strong> : <span className="mono">{shorten(address)}</span>
 }

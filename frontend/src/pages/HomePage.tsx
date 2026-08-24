@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCreateSplit } from '../hooks/useCreateSplit'
+import { useMySplits } from '../hooks/useMySplits'
 import { CreateSplit } from '../components/CreateSplit'
 import { TransactionStatus } from '../components/TransactionStatus'
 import { ContactsManager } from '../components/ContactsManager'
+import { AddressLabel } from '../components/SplitStatus'
 import { getRecentSplits, addRecentSplit } from '../lib/recentSplits'
 
 type HomePageProps = {
@@ -13,6 +15,7 @@ type HomePageProps = {
 export function HomePage({ address }: HomePageProps) {
   const navigate = useNavigate()
   const createSplit = useCreateSplit(address)
+  const { splits: mySplits, loading: mySplitsLoading } = useMySplits(address)
   const [lookupInput, setLookupInput] = useState('')
   const [recent, setRecent] = useState<string[]>([])
 
@@ -65,6 +68,50 @@ export function HomePage({ address }: HomePageProps) {
       </div>
 
       <ContactsManager />
+
+      {address && (
+        <div className="card">
+          <label>Your splits</label>
+          <p className="muted" style={{ marginTop: 0, fontSize: '0.85rem' }}>
+            Every split this wallet created or was added to, found on-chain — works from any
+            device, not just this browser.
+          </p>
+          {mySplitsLoading && <p className="muted">Loading…</p>}
+          {!mySplitsLoading && mySplits.length === 0 && (
+            <p className="muted">No splits found for this wallet yet.</p>
+          )}
+          {mySplits.map((s) => {
+            const paidCount = s.record.paid.filter(Boolean).length
+            const counterparty = s.role === 'creator' ? null : s.record.creator
+            return (
+              <div className="recipient-item" key={s.id.toString()}>
+                <span>
+                  #{s.id.toString()}{' '}
+                  <span className="muted">
+                    · {s.role === 'creator' ? 'you created' : (
+                      <>
+                        owed to <AddressLabel address={counterparty!} />
+                      </>
+                    )}
+                  </span>
+                </span>
+                <span className="row" style={{ gap: 10, width: 'auto' }}>
+                  <span className="muted" style={{ fontSize: '0.8rem' }}>
+                    {paidCount}/{s.record.recipients.length} paid
+                  </span>
+                  <button
+                    className="btn-secondary btn-small"
+                    onClick={() => navigate(`/app/split/${s.id}`)}
+                    type="button"
+                  >
+                    View
+                  </button>
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       {recent.length > 0 && (
         <div className="card">
