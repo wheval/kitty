@@ -168,6 +168,7 @@ export function LandingPage() {
                   'Cross-border stablecoin settlement',
                   'Group savings pools for subscriptions & recurring fees',
                   'Pay straight to a TikTok, IG, or X handle',
+                  'Private splits (ZK) — hide amounts and who’s in the group',
                   'Mainnet launch',
                 ].map((t) => (
                   <li className="landing-roadmap-item" key={t} style={{ color: '#B9B4E0' }}>

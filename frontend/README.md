@@ -145,4 +145,4 @@ _Pending — 1–2 minute walkthrough to be recorded separately._
 
 ## Notes
 
-This level's scope: a second contract, real inter-contract communication, CI/CD, frontend testing, mobile responsiveness, and loading states — all layered onto the same Kitty bill-splitting core from Levels 1–2. Stablecoin settlement, cross-border path payments, and send-to-social-handle addressing (the full Kitty product vision) remain scoped for future work.
+This level's scope: a second contract, real inter-contract communication, CI/CD, frontend testing, mobile responsiveness, and loading states — all layered onto the same Kitty bill-splitting core from Levels 1–2. Stablecoin settlement, cross-border path payments, send-to-social-handle addressing, and ZK-private splits (hiding amounts and participants) — the full Kitty product vision — remain scoped for future work.
