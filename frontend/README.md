@@ -141,7 +141,7 @@ Every push to `main` runs two parallel jobs (see `.github/workflows/ci.yml`):
 
 ## Demo video
 
-_Pending — 1–2 minute walkthrough to be recorded separately._
+[Watch the walkthrough](https://youtu.be/xaEtyd46ZUs) — wallet connect, creating a split by saved contact name, real on-chain settlement, live activity updates, and on-chain reputation.
 
 ## Notes
 
