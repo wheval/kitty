@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCreateSplit } from '../hooks/useCreateSplit'
+import { useSendPayment } from '../hooks/useSendPayment'
 import { useMySplits } from '../hooks/useMySplits'
 import { CreateSplit } from '../components/CreateSplit'
+import { SendPayment } from '../components/SendPayment'
 import { TransactionStatus } from '../components/TransactionStatus'
 import { ContactsManager } from '../components/ContactsManager'
 import { AddressLabel } from '../components/SplitStatus'
@@ -15,6 +17,7 @@ type HomePageProps = {
 export function HomePage({ address }: HomePageProps) {
   const navigate = useNavigate()
   const createSplit = useCreateSplit(address)
+  const sendPayment = useSendPayment(address)
   const { splits: mySplits, loading: mySplitsLoading } = useMySplits(address)
   const [lookupInput, setLookupInput] = useState('')
   const [recent, setRecent] = useState<string[]>([])
@@ -40,6 +43,18 @@ export function HomePage({ address }: HomePageProps) {
 
   return (
     <>
+      <SendPayment
+        disabled={!address}
+        pending={sendPayment.status === 'pending'}
+        onSend={(destination, amount) => sendPayment.send(destination, amount)}
+      />
+      <TransactionStatus
+        status={sendPayment.status}
+        hash={sendPayment.hash}
+        error={sendPayment.error}
+        successLabel="Sent"
+      />
+
       <CreateSplit
         disabled={!address}
         pending={createSplit.status === 'pending'}
