@@ -1,5 +1,7 @@
 # 🐱 Kitty — Level 3 (Orange Belt)
 
+[![CI](https://github.com/wheval/kitty/actions/workflows/ci.yml/badge.svg)](https://github.com/wheval/kitty/actions/workflows/ci.yml)
+
 The shared account for the family you support back home — split recurring costs across everyone who should be carrying them, settled instantly on-chain, with an on-chain reputation for who actually shows up. Two Soroban contracts calling each other, CI/CD, tests, and a mobile-responsive frontend.
 
 **Live demo:** https://kitty-level-3.vercel.app
